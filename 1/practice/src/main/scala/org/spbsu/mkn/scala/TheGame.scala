@@ -29,7 +29,7 @@ object TheGame {
     var cows = 0
     val n = secret.length
     val m = userInput.length
-    if (m != n) {
+    if (n != m) {
       throw new WrongNumberLengthException(n, m)
     }
     if (userInput.toSet.size != userInput.length) {
@@ -49,6 +49,7 @@ object TheGame {
   }
 
   def main(args: Array[String]): Unit = {
+
     print("Enter length: ")
     val len = readLine().toInt
     val secret = generateNumberString(len)
