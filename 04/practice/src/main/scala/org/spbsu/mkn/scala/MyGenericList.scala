@@ -11,6 +11,7 @@ sealed trait MyGenericList[+T] {
   def ::[NT >: T](elem: NT): MyGenericList[NT] = {
     Cons[NT](elem, this)
   }
+  def foldRight[NT](ini: NT)(f: (T, NT) => NT): NT
 }
 
 object MyGenericList {
@@ -36,10 +37,14 @@ object MyGenericList {
       case MyNil => undef
     }
   }
-  // extra task: implement sum using foldLeft
-  // def foldLeft(???)(???): ??? = ???
-}
 
+  def toSeq[T](list: MyGenericList[T]): Seq[T] ={
+    list.foldRight(Seq.empty[T])((seq, elem) => elem :+ seq)
+  }
+  def sort[T](list: MyGenericList[T])(implicit comparator: Ordering[T]): MyGenericList[T] = {
+    fromSeq(toSeq(list).sorted(comparator))
+  }
+}
 
 case object MyNil extends MyGenericList[Nothing] {
   def head: Nothing = {
@@ -63,6 +68,9 @@ case object MyNil extends MyGenericList[Nothing] {
   def map[NT](f: Nothing => NT): MyGenericList[NT] = {
     MyNil
   }
+  def foldRight[NT](ini: NT)(f: (Nothing, NT) => NT): NT = {
+    ini
+  }
 }
 
 case class Cons[T](head : T, tail : MyGenericList[T]) extends MyGenericList[T] {
@@ -79,5 +87,7 @@ case class Cons[T](head : T, tail : MyGenericList[T]) extends MyGenericList[T] {
     }
   }
   def map[NT](f: T => NT): MyGenericList[NT] = Cons[NT](f(head), tail.map[NT](f))
-
+  def foldRight[NT](ini: NT)(f: (T, NT) => NT): NT = {
+    tail.foldRight(f(head, ini))(f)
+  }
 }
